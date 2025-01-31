@@ -44,19 +44,20 @@ public class ArticleFreemarkerTest {
     @Test
     public void createStaticUrlTest() throws Exception {
         //1.获取文章内容
-        ApArticleContent apArticleContent = apArticleContentMapper.selectOne(Wrappers.<ApArticleContent>lambdaQuery().eq(ApArticleContent::getArticleId, 1404705243362627586L));
+        ApArticleContent apArticleContent = apArticleContentMapper.selectOne(Wrappers.<ApArticleContent>lambdaQuery().eq(ApArticleContent::getArticleId, 1383827787629252610L));
         if(apArticleContent != null && StringUtils.isNotBlank(apArticleContent.getContent())){
             //2.文章内容通过freemarker生成html文件
             StringWriter out = new StringWriter();
             Template template = configuration.getTemplate("article.ftl");
-
+            //获取文章内容
             Map<String, Object> params = new HashMap<>();
             params.put("content", JSONArray.parseArray(apArticleContent.getContent()));
-
+            //合成
             template.process(params, out);
-            InputStream is = new ByteArrayInputStream(out.toString().getBytes());
+
 
             //3.把html文件上传到minio中
+            InputStream is = new ByteArrayInputStream(out.toString().getBytes());
             String path = fileStorageService.uploadHtmlFile("", apArticleContent.getArticleId() + ".html", is);
 
             //4.修改ap_article表，保存static_url字段
